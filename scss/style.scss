@@ -1,0 +1,89 @@
+@use "sass:math";
+
+@import "adaptiveValueFunction.scss";
+
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+
+.wrapper {
+	min-height: 100%;
+	overflow: hidden;
+}
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+h1 {
+	font-size: adaptiveValueFunction(320, 32, 600, 40, 601, 24, 1200, 40, 1500, 40);
+	margin: 0px 0px 20px 0px;
+}
+// ======================================================
+.flex {
+	&__box-1 {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20px;
+		margin-bottom: 20px;
+	}
+
+	&__column-1 {
+		flex: 0 1
+			adaptiveValueFunction(
+				320,
+				320,
+				500.98,
+				500.98,
+				501,
+				math.div(501 - 20, 2),
+				899.8,
+				math.div(899.8 - 20, 2),
+				900,
+				math.div(900 - 3 * 20, 4),
+				1200,
+				math.div(1200 - 3 * 20, 4),
+				1600,
+				math.div(1200 - 3 * 20, 4)
+			);
+	}
+
+	&__item {
+		height: 100px;
+		color: aliceblue;
+		border: 1px solid rgb(125, 125, 125);
+		background-color: rgb(245, 245, 245);
+	}
+}
+
+.flex {
+	&__box-2 {
+		display: flex;
+		flex-wrap: wrap;
+		gap: adaptiveValueFunction(320, 10, 900, 20, 1200, 30, 1600, 30);
+	}
+
+	&__column-2 {
+		flex: 0 1
+			adaptiveValueFunction(
+				320,
+				320,
+				500.98,
+				500.98,
+				501,
+				math.div(501 - 13.12069, 2),
+				899.8,
+				math.div(899.8 - 19.99655, 2),
+				900,
+				math.div(900 - 3 * 20, 4),
+				1200,
+				math.div(1200 - 3 * 30, 4),
+				1600,
+				math.div(1200 - 3 * 30, 4)
+			);
+	}
+}
