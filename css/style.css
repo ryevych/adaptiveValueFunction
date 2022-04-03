@@ -22,6 +22,10 @@ h1 {
   margin: 0px 0px 20px 0px;
 }
 
+span {
+  font-style: italic;
+}
+
 .flex__box-1 {
   display: flex;
   flex-wrap: wrap;
@@ -32,17 +36,28 @@ h1 {
   flex: 0 1 calc(min(31.31125rem, 100vw) + clamp(15.03125rem, 407829.031250371rem + -1302400.0000011846vw, 31.31125rem) + clamp(15.03125rem, -0.625rem + 50vw, 27.49375rem) + clamp(13.125rem, 64672.4999999853rem + -114949.9999999739vw, 27.49375rem) + clamp(13.125rem, -0.9375rem + 25vw, 17.8125rem) - 86.96125rem);
 }
 .flex__item {
-  height: 100px;
+  height: 50px;
   color: aliceblue;
-  border: 1px solid #7d7d7d;
-  background-color: whitesmoke;
+  border: 1px solid rgb(125, 125, 125);
+  background-color: rgb(245, 245, 245);
 }
 
 .flex__box-2 {
   display: flex;
   flex-wrap: wrap;
   gap: calc(min(1.25rem, 0.2801724138rem + 1.724137931vw) + clamp(1.25rem, -0.625rem + 3.3333333333vw, 1.875rem) - 1.25rem);
+  margin-bottom: 20px;
 }
 .flex__column-2 {
   flex: 0 1 calc(min(31.31125rem, 100vw) + clamp(15.2462284375rem, 402444.0363694286rem + -1285201.725001169vw, 31.31125rem) + clamp(15.2462284375rem, -0.1400862989rem + 49.1379312939vw, 27.4938578125rem) + clamp(13.125rem, 64672.9851562353rem + -114950.8624999739vw, 27.4938578125rem) + clamp(13.125rem, 0.46875rem + 22.5vw, 17.34375rem) - 87.17633625rem);
+}
+
+.flex__box-3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.flex__column-3 {
+  flex: 0 1 calc(min(31.31125rem, 100%) + clamp(15.03125rem, 407829.031250371rem - 1302400.0000011846%, 31.31125rem) + clamp(15.03125rem, -0.625rem + 50%, 27.49375rem) + clamp(13.125rem, 64672.4999999853rem - 114949.9999999739%, 27.49375rem) + clamp(13.125rem, -0.9375rem + 25%, 17.8125rem) - 86.96125rem);
 }
