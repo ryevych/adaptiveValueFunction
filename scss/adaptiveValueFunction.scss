@@ -1,18 +1,18 @@
 @function rem($px) {
-   $result: $px / 16 + rem;
+   $result: math.div($px, 16) + rem;
    @return $result;
 }
 @function em($px, $current: 16) {
-   $result: $px / $current + em;
+   $result: math.div($px, $current) + em;
    @return $result;
 }
 
-//  Вспомагательная функия для миксина adaptiveValueModified
+//  Secondary function used in adaptiveValueFunction function
 @function defineLineParameters($breakPoints, $i) {
-   // Определяет параметры линии, заданной парой точек {x1, y1} и {x2, y2}
-   // Точки берутся из списка $breakPoints, который имеет вид (x1, y1, x2, y2, ..., xN, yN)
-   // Индекс $i задает выбор начальной точки  - $x1
-   // Результат - список параметров (наклон, точка пересечения оси Y, формула прямой)
+   // Defines the parameters of a line drawn through {x1, y1} and {x2, y2} points
+   // The points are taken from the $breakPoints list, which looks like (x1, y1, x2, y2, ..., xN, yN)
+   // Index $i specifies the choice of starting point - $x1
+   // The result is a list of parameters (slope, Y-axis intersection point, line equation)
 
    $x1: nth($breakPoints, 2 * $i - 1);
    $x2: nth($breakPoints, 2 * $i + 1);
@@ -22,7 +22,7 @@
    $k: math.div($y2 - $y1, $x2 - $x1);
    $y0: -($x1 * $k) + $y1;
 
-   $funcExpression: 0; // Оптимизация $funcExpression - избавление от члена вида 0 * vw
+   $funcExpression: 0; // Optimization of $funcExpression - release from 0 * vw terms
    @if ($k == 0) {
       $funcExpression: #{rem($y0)};
    } @else {
@@ -39,49 +39,47 @@
    @return $lineParameters;
 }
 
+// Main function
 @function adaptiveValueFunction($breakPoints...) {
-   // Функция, которая воспроизводит произвольное заданное пользователем поведение (изменение) значения свойства.
+   // Function that reproduces arbitrary user-defined behavior of a property value.
    //
-   // Поведение задается (табулируется) контрольными точками ($breakpoints).
-   // Вывод в CSS -- в относительных единицах rem.
+   // The behavior is specified (tabulated) by breakpoints ($breakpoints).
+   // Output in CSS is in relative units (rem).
    //
-   // Параметры:
-   // $breakPoints -- список точек определяющих поведение свойства в формате
-   // 	$значениеШириныВьюпорта1, $значениеСвойства1, ..., $значениеШириныВьюпортаN, $значениеСвойстваN.
-   // 	Величины задаются в пикселях без указания единицы измерения.
-   //  	$значениеШириныВьюпорта задаются строго в возрастающем порядке (положительные числа),
-   // 	равных значений быть не должно:
-   // 	$значениеШириныВьюпорта1 < $значениеШириныВьюпорта2 < ... < $значениеШириныВьюпортаN
-   // 	Ограничений на $значениеСвойства нет -- любое положительное или отрицательное число, и ноль.
+   // Parameters:
+   // $breakPoints -- a list of points defining the behavior of the property in the form
+   // 	$viewportWidth_1, $propertyValue_1, ..., $viewportWidth_N, $propertyValue_N.
+   // 	Values ​​are specified in pixels without specifying a unit (18px -> 18).
+   //  	$viewportWidths are given strictly in ascending order and must be positive,
+   //    equal values are not allowed:
+   // 	$viewportWidth_1 < $viewportWidth_2 < ... < $viewportWidth_N
+   // There are no restrictions on the $propertyValue -- any positive or negative number, and zero.
    //
-   // Примеры:
+   // Examples:
    // 	adaptiveValueFunction(320, 20, 900, 30, 1600, 40) --
-   // 	на 320px значение свойства равно 20px, на 900px - увеличивается до 30px, на 1600px - до 40px,
-   // 	больше 1600px - продалжает расти (как и на участке от 900 до 1600px), меньше 320px -- продолжает падать
-   // 	(как и на участке от 900 до 320px).
-   //
+   // 	at 320px of viewport width the property value is equal to 20px, then at 900px it grows up to 30px, at 1600px - to 40px,
+   //    and then continues to grow.
+   // 
    // 	adaptiveValueFunction( 320, 5, 991, 5, 992, 20, 1600, 40, 1700, 40) --
-   // 	на 320px значение свойства равно 5px, до 991px - остается равным 5px, при 992px - скачкообразно возрастает
-   // 	до 20px, на 1600px - увеличивается до 40px, больше 1600px - остается постоянным и равно 40px.
+   // 	In the range from 320px to 991px the property value is constant at 5px, then at 992px it jumps to 20px,
+   // 	and reach the value of 40px at 1600px of screen size. At viewport width greater then 1600px the property value remain constant (40px).
    //
-   //		Если ширина вьюпорта меньше, чем $значениеШириныВьюпорта1, то поведение свойства аппроксимируется
-   // 	линией с отрезка [$значениеШириныВьюпорта1, $значениеШириныВьюпорта2]; если больше, чем $значениеШириныВьюпортаN,
-   // 	то линией с отрезка [$значениеШириныВьюпорта(N-1), $значениеШириныВьюпортаN].
+   //	If the viewport width is less than $viewportWidth_1 value, then the behavior of the property is 
+   //    approximated by a line from the range [$viewportWidth_1, $viewportWidth_2]; 
+   //    if greater than $viewportWidth_N, then using the behavior from the range [$viewportWidth_(N-1), $viewportWidth_N].
 
-   $breakPointsLength: length($breakPoints); // Длина аргумента $breakPoints (должна быть парным числом)
-   $breakPointsPair: math.div($breakPointsLength, 2); // Количество точек, задающих поведение свойства
+
+   $breakPointsLength: length($breakPoints); // The length of $breakPoints variable (must be an even number)
+   $breakPointsPair: math.div($breakPointsLength, 2); // The number of points that define the behavior of property
    $breakPointsEven: $breakPointsPair - math.round($breakPointsPair);
    @if ($breakPointsEven != 0) {
-      // Проверка на парность длины аргумента $breakPoints
-      @error "Список паарметров слишком краток -- возможно задано непарное количество точек.";
+      @error "The list of parameters is too short, or length of parameter list is odd number.";
    }
    @if ($breakPointsLength < 4) {
-      // Проверяем, чтоб имелось минимальное количество аргументов при вызове миксина. Если нет --
-      // выводим ошибку
-      @error "Список паарметров слишком краток, не хватает точек для определения поведения свойства!";
+      @error "The list of parameters is too short, not enough points to define property behavior.";
    } @else {
       @if ($breakPointsPair == 2) {
-         // Если заданы только две пары точек - моментальный вывод в CSS
+         // Instant output in CSS if only two pairs of points are given
          $k: math.div(nth($breakPoints, 4) - nth($breakPoints, 2), nth($breakPoints, 3) - nth($breakPoints, 1));
          $y0: -(nth($breakPoints, 1) * $k) + nth($breakPoints, 2);
          $funcExpression: #{rem($y0)} + " + " + #{$k * 100}vw;
@@ -98,7 +96,7 @@
          }
          @return $propertyValue;
       } @else if ($breakPointsPair == 3) {
-         // Если заданы только три пары точек - оптимизируем результат, вывод в CSS
+         // Optimize the result for the case of three pairs of points
          $kList: ();
          $funcExpressionList: ();
 
@@ -119,15 +117,15 @@
          }
          @return $propertyValue;
       } @else {
-         // Количество пар даных больше трех
+         // Number of input data pairs greater than three
 
-         // Вычисление константы
+         // Determination of Constant 
          $cumul: 0;
          @for $i from 2 through ($breakPointsPair - 1) {
             $cumul: $cumul + nth($breakPoints, 2 * $i);
          }
 
-         // Основной блок
+         // main block
          $propertyValue: "";
          $propertyValueList: ();
          @for $i from 1 through ($breakPointsPair - 1) {
@@ -139,12 +137,12 @@
             $funcExpression: nth($lineParameters, 3);
 
             @if ($k == 0) {
-               // Значение свойства НЕ изменяется на участке $x1, $x2
+               // The value of the property does NOT change in the region between $x1 and $x2
                $cumul: $cumul - $y0;
             } @else {
-               // Значение свойства изменяется на участке $x1, $x2
+               // The value of the property changes in the region between $x1 and $x2
                @if ($i == 1) {
-                  // Обработка первой записи в результат
+                  // Processing the first entry in the result
                   @if ($k > 0) {
                      $propertyValue: #{"min(" + rem($y2) + ", " + $funcExpression + ")"};
                   } @else {
@@ -152,7 +150,7 @@
                   }
                   $propertyValueList: append($propertyValueList, $propertyValue);
                } @else if ($i == ($breakPointsPair - 1)) {
-                  // Обработка последней записи в результат
+                  // Processing the last entry in the result
                   @if ($k > 0) {
                      $propertyValue: #{"max(" + rem($y1) + ", " + $funcExpression + ")"};
                   } @else {
@@ -160,7 +158,7 @@
                   }
                   $propertyValueList: append($propertyValueList, $propertyValue);
                } @else {
-                  // Последующие записи в результат
+                  // Intermediate entries in the result
                   $propertyValue: #{"clamp(" +
                      rem(min($y1, $y2)) +
                      ", " +
@@ -172,7 +170,7 @@
                }
             }
          }
-         // Формирование результата работы
+         // Generation of the result
          $propertyValue: nth($propertyValueList, 1);
          @if (length($propertyValueList) != 1) {
             @for $i from 2 through length($propertyValueList) {
